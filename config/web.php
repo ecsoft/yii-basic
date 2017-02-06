@@ -48,6 +48,7 @@ $config = [
         
     ],
     'params' => $params,
+    'defaultRoute'=>'customer',
 ];
 
 if (YII_ENV_DEV) {
