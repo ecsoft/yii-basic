@@ -11,5 +11,9 @@ class Phone
     /**
      * @var string
      */
-    public $numbers;
+    public $number;
+    public function __construct($number)
+    {
+        $this->number = $number;
+    }
 }

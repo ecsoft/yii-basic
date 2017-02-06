@@ -7,6 +7,7 @@
  */
 namespace app\controllers;
 
+use yii\data\ArrayDataProvider;
 use yii\web\Controller;
 use app\models\customer\CustomerRecord;
 use app\models\customer\Customer;
@@ -17,14 +18,57 @@ class CustomerController extends Controller
 {
     public function actionIndex()
     {
-        return $this->render('index');
+        $records = $this->findRecordsByQuery();
+        return $this->render('index',compact('records'));
+    }
+
+    private function findRecordsByQuery()
+    {
+        $number = \Yii::$app->request->get('phone_number');
+        $records = $this->getRecordByPhoneNumber($number); //TODO: function need to be implimented
+        $dataProvider = $this->wrapIntoDataProvider($records); //TODO: function need need to be implimented
+        return $dataProvider;
+    }
+
+    private function getRecordByPhoneNumber($number)
+    {
+        $phone_record = PhoneRecord::findOne(['number'=>$number]);
+        if(!$phone_record)
+            return [];
+        $customer_record = CustomerRecord::findOne($phone_record->customer_id);
+        if(!$customer_record)
+            return [];
+        return [$this->makeCustomer($customer_record,$phone_record)];
+    }
+
+    private function wrapIntoDataProvider($data)
+    {
+        return new ArrayDataProvider(
+            [
+                'allModels'=>$data,
+                'pagination'=>false,
+            ]
+        );
     }
 
     public function actionAdd()
     {
         $customer = new CustomerRecord;
         $phone = new PhoneRecord;
+
+        if($this->load($customer,$phone,$_POST)){
+            $this->store($this->makeCustomer($customer,$phone));
+            return $this->redirect('/customer/query');
+        }
         return $this->render('add',compact('customer','phone'));
+    }
+
+    private function load(CustomerRecord $customer,PhoneRecord $phone, array $post)
+    {
+        return $customer->load($post)
+            and $phone->load($post)
+            and $customer->validate()
+            and $phone->validate(['number']);
     }
 
     private function store(Customer $customer)
@@ -52,5 +96,10 @@ class CustomerController extends Controller
         $customer->phones[] = new Phone($phone_record->number);
 
         return $customer;
+    }
+
+    public function actionQuery()
+    {
+        return $this->render('query');
     }
 }
