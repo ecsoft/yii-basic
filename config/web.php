@@ -1,6 +1,7 @@
 <?php
 
 $params = require(__DIR__ . '/params.php');
+$db = require(__DIR__ . '/db.php');
 
 $config = [
     'id' => 'basic',
@@ -15,7 +16,7 @@ $config = [
             'class' => 'yii\caching\FileCache',
         ],
         'user' => [
-            'identityClass' => 'app\models\User',
+            'identityClass' => 'app\models\user\UserRecord',
             'enableAutoLogin' => true,
         ],
         'errorHandler' => [
@@ -45,10 +46,16 @@ $config = [
             'rules' => [
             ],
         ],
+
+        'authManager' => [
+            'class' => 'yii\rbac\DBManager',
+            'defaultRoles' => ['guest'],
+            'db' => $db,
+        ],
         
     ],
     'params' => $params,
-    'defaultRoute'=>'customer',
+    'defaultRoute'=>'service',
 ];
 
 if (YII_ENV_DEV) {

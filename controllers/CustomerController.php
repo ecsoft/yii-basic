@@ -16,12 +16,18 @@ use app\models\customer\PhoneRecord;
 
 class CustomerController extends Controller
 {
+    /**
+     * @return string
+     */
     public function actionIndex()
     {
         $records = $this->findRecordsByQuery();
         return $this->render('index',compact('records'));
     }
 
+    /**
+     * @return ArrayDataProvider
+     */
     private function findRecordsByQuery()
     {
         $number = \Yii::$app->request->get('phone_number');
@@ -30,6 +36,10 @@ class CustomerController extends Controller
         return $dataProvider;
     }
 
+    /**
+     * @param $number
+     * @return array
+     */
     private function getRecordByPhoneNumber($number)
     {
         $phone_record = PhoneRecord::findOne(['number'=>$number]);
@@ -41,6 +51,10 @@ class CustomerController extends Controller
         return [$this->makeCustomer($customer_record,$phone_record)];
     }
 
+    /**
+     * @param $data
+     * @return ArrayDataProvider
+     */
     private function wrapIntoDataProvider($data)
     {
         return new ArrayDataProvider(
@@ -51,6 +65,9 @@ class CustomerController extends Controller
         );
     }
 
+    /**
+     * @return string|\yii\web\Response
+     */
     public function actionAdd()
     {
         $customer = new CustomerRecord;
@@ -63,7 +80,13 @@ class CustomerController extends Controller
         return $this->render('add',compact('customer','phone'));
     }
 
-    private function load(CustomerRecord $customer,PhoneRecord $phone, array $post)
+    /**
+     * @param CustomerRecord $customer
+     * @param PhoneRecord $phone
+     * @param array $post
+     * @return bool
+     */
+    private function load(CustomerRecord $customer, PhoneRecord $phone, array $post)
     {
         return $customer->load($post)
             and $phone->load($post)
@@ -71,6 +94,9 @@ class CustomerController extends Controller
             and $phone->validate(['number']);
     }
 
+    /**
+     * @param Customer $customer
+     */
     private function store(Customer $customer)
     {
         $customer_record = new CustomerRecord();
@@ -87,7 +113,12 @@ class CustomerController extends Controller
         }
     }
 
-    private function makeCustomer(CustomerRecord $customer_record,PhoneRecord $phone_record)
+    /**
+     * @param CustomerRecord $customer_record
+     * @param PhoneRecord $phone_record
+     * @return Customer
+     */
+    private function makeCustomer(CustomerRecord $customer_record, PhoneRecord $phone_record)
     {
         $name = $customer_record->name;
         $birth_date = new \DateTime($customer_record->birth_date);
@@ -98,6 +129,9 @@ class CustomerController extends Controller
         return $customer;
     }
 
+    /**
+     * @return string
+     */
     public function actionQuery()
     {
         return $this->render('query');
